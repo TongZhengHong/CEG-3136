@@ -8,7 +8,7 @@ ALARM_SIMUL_HDR   EQU	1	 ; prevents future inclusion of the file
 
 ; for calculating wins
 NOCHAR        equ    0xff
-BEL           equ    0x07
+BEL           equ    '@'
 TRUE          equ    1
 FALSE         equ    0
 NUMCODES      equ    5

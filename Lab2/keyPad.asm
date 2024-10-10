@@ -31,13 +31,13 @@
 ;-----Conversion table
 NUMKEYS		EQU	16		; Number of keys on the keypad
 BADCODE 	EQU	$FF 	; returned of translation is unsuccessful
-NOKEY			EQU $00   ; No key pressed during poll period
-POLLCOUNT	EQU	1     ; Number of loops to create 1 ms poll time
-PDELAY  	RMB 1			; Variable to achieve propagation delay
+NOKEY		EQU $00 	; No key pressed during poll period
+POLLCOUNT	EQU	1     	; Number of loops to create 1 ms poll time
+PDELAY  	RMB 1		; Variable to achieve propagation delay
 
- SWITCH globalConst  ; Constant data
+ SWITCH globalConst  	; Constant data
 
- SWITCH code_section  ; place in code section
+ SWITCH code_section  	; place in code section
 ;-----------------------------------------------------------	
 ; Subroutine: initKeyPad
 ;
@@ -47,10 +47,10 @@ PDELAY  	RMB 1			; Variable to achieve propagation delay
 ;-----------------------------------------------------------	
 initKeyPad: psha
 
-	ldaa #$F0   ; Set to PA4-7 as output and PA0-3 as input
+	ldaa #$F0   		; Set to PA4-7 as output and PA0-3 as input
   	staa DDRA
 
-	ldaa #$01		; Enable pull-up resistors for Port A (bit 0 PUPAE)
+	ldaa #$01			; Enable pull-up resistors for Port A (bit 0 PUPAE)
 	staa PUCR 
 
 	pula
@@ -86,7 +86,7 @@ prk_initial_loop:
 	ldab PORTA        		; prev_PORTA = PORTA // Store in accumulator B
 
 	pshd
-	ldd #20					; delayms(2);
+	ldd #2					; delayms(2);
 	jsr delayms
 	puld
 
@@ -123,7 +123,7 @@ prk_end:
 pollReadKey:psha
 
 	ldaa #%11100000
-	staa PORTA					; PORTA = 11100000 			// Set row 0
+	staa PORTA					; PORTA = 11100000 		// Set row 0
 	jsr propagation_delay		; propagation_delay(); 	// delay for stability
 	ldab PORTA					; code = translate(PORTA);
 	jsr translate
@@ -131,7 +131,7 @@ pollReadKey:psha
 	bne rk_debounce				; 	rk_debounce();
 
 	ldaa #%11010000
-	staa PORTA					; PORTA = 11010000 			// Set row 1
+	staa PORTA					; PORTA = 11010000 		// Set row 1
 	jsr propagation_delay		; propagation_delay(); 	// delay for stability
 	ldab PORTA					; code = translate(PORTA);
 	jsr translate
@@ -139,7 +139,7 @@ pollReadKey:psha
 	bne rk_debounce				; 	rk_debounce();
 
 	ldaa #%10110000
-	staa PORTA					; PORTA = 10110000 			// Set row 2
+	staa PORTA					; PORTA = 10110000 		// Set row 2
 	jsr propagation_delay		; propagation_delay(); 	// delay for stability
 	ldab PORTA					; code = translate(PORTA);
 	jsr translate
@@ -147,7 +147,7 @@ pollReadKey:psha
 	bne rk_debounce				; 	rk_debounce();
 
 	ldaa #%01110000
-	staa PORTA					; PORTA = 01110000 			// Set row 3
+	staa PORTA					; PORTA = 01110000 		// Set row 3
 	jsr propagation_delay		; propagation_delay(); 	// delay for stability
 	ldab PORTA					; code = translate(PORTA);
 	jsr translate
@@ -159,7 +159,7 @@ rk_debounce:
 	blt rk_debounce
 
 	pshb
-	ldd #15						; delayms(10);
+	ldd #10						; delayms(10);
 	jsr delayms
 	pulb
 
@@ -171,7 +171,7 @@ rk_debounce:
 rk_return_bad:
 	ldab #BADCODE				; 	return(BADCODE);
 
-rk_end
+rk_end:
 	pula
 	rts							; return(ch);
 
@@ -256,9 +256,9 @@ TR_endif  			    				;     } else {
 	leax cnvTbl_struct_len,X    		;           ptr++;
 	inca 	; increment count      		;           ix++;
                                 		;     }	
-	cmpa #NUMKEYS               		;} WHILE (count < NUMKEYS)
+	cmpa #NUMKEYS               		; } WHILE (count < NUMKEYS)
 	blo TR_LOOP	
-tr_endwh ; ENDWHILE
+tr_endwh 								; ENDWHILE
 
 	pulb ; move ch to Acc B
 	; restore registres
