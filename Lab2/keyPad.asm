@@ -29,7 +29,7 @@
 **************EQUATES**********
 
 ;-----Conversion table
-NUMKEYS		EQU	16		; Number of keys on the keypad
+NUMKEYS		EQU	16	; Number of keys on the keypad
 BADCODE 	EQU	$FF 	; returned of translation is unsuccessful
 NOKEY		EQU $00 	; No key pressed during poll period
 POLLCOUNT	EQU	1     	; Number of loops to create 1 ms poll time
@@ -50,7 +50,7 @@ initKeyPad: psha
 	ldaa #$F0   		; Set to PA4-7 as output and PA0-3 as input
   	staa DDRA
 
-	ldaa #$01			; Enable pull-up resistors for Port A (bit 0 PUPAE)
+	ldaa #$01		; Enable pull-up resistors for Port A (bit 0 PUPAE)
 	staa PUCR 
 
 	pula
@@ -76,30 +76,30 @@ initKeyPad: psha
 readKey: psha
 
 prk_initial_loop:
-	ldaa #$00				; do {
-	staa PORTA				; 	PORTA = 0b00000000 // Set all the output pins to LOW to detect key press
+	ldaa #$00			; do {
+	staa PORTA			; 	PORTA = 0b00000000 // Set all the output pins to LOW to detect key press
 	ldaa PORTA						
 	anda #%00001111				
 	cmpa #%00001111				
-	beq prk_initial_loop	; } while (PORTA & 0x0F == 0x0F);
+	beq prk_initial_loop		; } while (PORTA & 0x0F == 0x0F);
 
 	ldab PORTA        		; prev_PORTA = PORTA // Store in accumulator B
 
 	pshd
-	ldd #2					; delayms(2);
+	ldd #2				; delayms(2);
 	jsr delayms
 	puld
 
-	ldaa PORTA				; if (PORTA != prev_PORTA)
+	ldaa PORTA			; if (PORTA != prev_PORTA)
 	cba	
 	bne prk_nokey			; 	return NOKEY;
 
 	jsr pollReadKey			; code = readKey();
 	cmpb #BADCODE			; if (code != BADCODE)
-	bne prk_end				; 	return code;
-							; else 
+	bne prk_end			; 	return code;
+					; else 
 prk_nokey:
-	ldab #NOKEY				; 	return NOKEY;
+	ldab #NOKEY			; 	return NOKEY;
 
 prk_end:
 	pula
@@ -123,57 +123,57 @@ prk_end:
 pollReadKey:psha
 
 	ldaa #%11100000
-	staa PORTA					; PORTA = 11100000 		// Set row 0
+	staa PORTA			; PORTA = 11100000 	// Set row 0
 	jsr propagation_delay		; propagation_delay(); 	// delay for stability
-	ldab PORTA					; code = translate(PORTA);
+	ldab PORTA			; code = translate(PORTA);
 	jsr translate
-	cmpb #BADCODE				; if (code == BADCODE)
-	bne rk_debounce				; 	rk_debounce();
+	cmpb #BADCODE			; if (code == BADCODE)
+	bne rk_debounce			; 	rk_debounce();
 
 	ldaa #%11010000
-	staa PORTA					; PORTA = 11010000 		// Set row 1
+	staa PORTA			; PORTA = 11010000 	// Set row 1
 	jsr propagation_delay		; propagation_delay(); 	// delay for stability
-	ldab PORTA					; code = translate(PORTA);
+	ldab PORTA			; code = translate(PORTA);
 	jsr translate
-	cmpb #BADCODE				; if (code == BADCODE)
-	bne rk_debounce				; 	rk_debounce();
+	cmpb #BADCODE			; if (code == BADCODE)
+	bne rk_debounce			; 	rk_debounce();
 
 	ldaa #%10110000
-	staa PORTA					; PORTA = 10110000 		// Set row 2
+	staa PORTA			; PORTA = 10110000 	// Set row 2
 	jsr propagation_delay		; propagation_delay(); 	// delay for stability
-	ldab PORTA					; code = translate(PORTA);
+	ldab PORTA			; code = translate(PORTA);
 	jsr translate
-	cmpb #BADCODE				; if (code == BADCODE)
-	bne rk_debounce				; 	rk_debounce();
+	cmpb #BADCODE			; if (code == BADCODE)
+	bne rk_debounce			; 	rk_debounce();
 
 	ldaa #%01110000
-	staa PORTA					; PORTA = 01110000 		// Set row 3
+	staa PORTA			; PORTA = 01110000 	// Set row 3
 	jsr propagation_delay		; propagation_delay(); 	// delay for stability
-	ldab PORTA					; code = translate(PORTA);
+	ldab PORTA			; code = translate(PORTA);
 	jsr translate
 		
 rk_debounce:
-	ldaa PORTA					; while (PORTA & 0x0F < 0x0F);
+	ldaa PORTA			; while (PORTA & 0x0F < 0x0F);
 	anda #$0F						 
 	cmpa #$0F
 	blt rk_debounce
 
 	pshb
-	ldd #10						; delayms(10);
+	ldd #10				; delayms(10);
 	jsr delayms
 	pulb
 
-	ldaa PORTA					; if (PORTA & 0x0F == 0x0F) 
-	anda #$0F					; 	// Confirm that all buttons are released (inputs all 1s)
+	ldaa PORTA			; if (PORTA & 0x0F == 0x0F) 
+	anda #$0F			; 	// Confirm that all buttons are released (inputs all 1s)
 	cmpa #$0F
 	beq rk_end
 
 rk_return_bad:
-	ldab #BADCODE				; 	return(BADCODE);
+	ldab #BADCODE			; 	return(BADCODE);
 
 rk_end:
 	pula
-	rts							; return(ch);
+	rts				; return(ch);
 
 ;-----------------------------------------------------------	
 ; Subroutine:  propagation_delay
@@ -239,26 +239,26 @@ TR_PR_X DS.B 1 ; preserved regiters X
 TR_RA DS.W 1 ; return address
 
 translate: psha
-	pshx								; preserve registers
-	leas -1,SP 		    				; byte chascii;
-	ldx #cnvTbl		    				; ptr = cnvTbl;
-	clra			    				; ix = 0;
-	movb #BADCODE,TR_CH,SP 				; ch = BADCODE;
+	pshx					; preserve registers
+	leas -1,SP 		    		; byte chascii;
+	ldx #cnvTbl		    		; ptr = cnvTbl;
+	clra			    		; ix = 0;
+	movb #BADCODE,TR_CH,SP 			; ch = BADCODE;
 
-TR_loop 			    				; do {
+TR_loop 			    		; do {
 	cmpb cnvTbl_code,X  	    		;     if(code == ptr->code)
 	bne TR_endif
-				    					;     {
+				    		;     {
 	movb cnvTbl_ascii,X,TR_CH,SP 		;        ch <- [ptr+1]
-	bra TR_endwh  		    			;     	 break;
+	bra TR_endwh  		    		;     	 break;
 
-TR_endif  			    				;     } else {	
+TR_endif  			    		;     } else {	
 	leax cnvTbl_struct_len,X    		;           ptr++;
 	inca 	; increment count      		;           ix++;
                                 		;     }	
 	cmpa #NUMKEYS               		; } WHILE (count < NUMKEYS)
 	blo TR_LOOP	
-tr_endwh 								; ENDWHILE
+tr_endwh 					; ENDWHILE
 
 	pulb ; move ch to Acc B
 	; restore registres
