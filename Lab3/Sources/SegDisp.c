@@ -43,8 +43,10 @@ void clearDisp(void) {
     PORTB = 0x00;       // Set PORTB pins to 0 (LOW)
     PTP = 0x0F;       // Set PORTP pins 0-3 to 1 (HIGH)
 
-    for (int i = 0; i < 4; i++) 
-        segments[i] = 0x00;
+    segNumbers[0] = 0;
+    segNumbers[1] = 0;
+    segNumbers[2] = 0;
+    segNumbers[3] = 0;
 }
 
 /*---------------------------------------------
@@ -56,10 +58,10 @@ Description: Receives an ASCII character (ch)
              codes for identified display (dispNum).
 -----------------------------------------------*/
 void setCharDisplay(char ch, byte dispNum) {
-    if (dispNum > 3 || (ch < '0' && ch > '9')) return;
-
-    char segment = segments[ch - 48]; // Offset acsii value to 0
-    segNumbers[dispNum] = segment;  // Store segment value in memory
+    if (dispNum <= 3 && ch >= '0' && ch <= '9') {
+        char segment = segments[ch - 48]; // Offset acsii value to 0
+        segNumbers[dispNum] = segment;  // Store segment value in memory
+    }
 }
 
 /*---------------------------------------------
