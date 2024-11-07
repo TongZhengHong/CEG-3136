@@ -23,8 +23,15 @@
 ;---------------------------------------------------------------------
 
 ; Include header files
- include "sections.inc"
- include "reg9s12.inc"  ; Defines EQU's for Peripheral Ports
+ NOLIST
+ include "mc9s12dg256.inc"  ; Defines EQU's for Peripheral Ports
+ LIST
+
+; Define External Symbols
+ XDEF initKeyPad, pollReadKey, readKey
+
+; External Symbols Referenced
+ XREF delayms
 
 **************EQUATES**********
 
@@ -42,7 +49,7 @@ BADCODE 	EQU	$FF 	; returned of translation is unsuccessful
 NOKEY		EQU 	$00   ; No key pressed during poll period
 POLLCOUNT	EQU	1     ; Number of loops to create 1 ms poll time
 
- SWITCH globalConst  ; Constant data
+.rodata SECTION  ; Constant data
 
 ; defnitions for structure cnvTbl_struct
  OFFSET 0
@@ -68,7 +75,7 @@ cnvTbl  dc.b %11101110,'1'
 	dc.b %01111011,'#'
 	dc.b %01110111,'d'
 
- SWITCH code_section  ; place in code section
+.text SECTION  ; place in code section
 ;-----------------------------------------------------------	
 ; Subroutine: initKeyPad
 ;
@@ -113,16 +120,16 @@ pollReadKey: pshx   ; preserve register
    leas -PRK_VARSIZE,SP
    movb #NOKEY,PRK_CH,SP ; char ch = NOKEY;
    ldx #POLLCOUNT   ; int count = POLLCOUNT;
-   movb #0x0f,PORTA ; PORTA = 0x0f; //set outputs to low
+   movb #$0f,PORTA  ; PORTA = 0x0f; //set outputs to low
 prk_loop:           ;           do {
 prk_if1:
-   ldb PORTA        ; 3 cycles     if(PORTA != 0x0f)
+   ldab PORTA       ; 3 cycles     if(PORTA != 0x0f)
    cmpb #$0f        ; 1 cycle      {
    beq prk_endif1   ; 3 cycles
    ldd #1           ;                 delayms(1)
    jsr delayms     ;              
 prk_if2:            ;             
-   ldb PORTA        ;                 if(PORTA != 0x0f)
+   ldab PORTA        ;                 if(PORTA != 0x0f)
    cmpb #$0f        ;                 {
    beq prk_endif2
    jsr readKey      ;                     ch = readKey();
@@ -262,8 +269,8 @@ TR_endif  			    ;     }
 	inca ; increment count      ;           ix++;
                                     ;     }	
 	cmpa #NUMKEYS               ;} WHILE count < NUMKEYS
-	blo TR_LOOP	
-tr_endwh ; ENDWHILE
+	blo TR_loop	
+TR_endwh ; ENDWHILE
 
 	pulb ; move ch to Acc B
 	; restore registres

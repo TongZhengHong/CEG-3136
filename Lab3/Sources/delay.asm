@@ -5,13 +5,17 @@
 ; Author: Gilbert Arbez
 ; Date: Fall 2010
 ;------------------------------------------------------
- include "sections.inc"
- include "alarm.inc"
+TRUE          equ    1
+FALSE         equ    0
+
+
+;--- Define External Symbols
+ XDEF delayms, setDelay, polldelay
 
 ; Some definitions
 MSCOUNT equ 3000
 
-	SWITCH code_section
+.text: SECTION
 
 ;-------------------------------
 ; Subroutine delayms
@@ -109,5 +113,6 @@ dly1_endwhile:
 ;------------------------------------------------------
 ; Global variables
 ;------------------------------------------------------
-   switch globalVar
+.rodata SECTION
+
 delayCount ds.w 1   ; 2 byte delay counter
