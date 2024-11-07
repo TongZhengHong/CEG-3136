@@ -175,8 +175,8 @@ int writeToEE(int ix, int code)
       *eepromAddr = code;    // Write data word aligned address
       ECMD = PROG;              // Write program command
       ESTAT = CBEIF;            // Write 1 to CBEIF to lauch command
-      if(ESTAT & (ACCERR|PVIOL) != 0) retVal = FALSE; // Flag the error
-      else while(ESTAT & CCIF) ;  // wait until command complete      
+      if((ESTAT & (ACCERR|PVIOL)) != 0) retVal = FALSE; // Flag the error
+      else while(!(ESTAT & CCIF)) ;  // wait until command complete      
    } 
    else retVal = FALSE; // Flag error - command buffer not empty
    return(retVal);
