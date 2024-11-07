@@ -20,7 +20,7 @@ const char segments[10] = {
     0b00000111,
     0b01111111,
     0b01101111
-}
+};
 
 // Prototypes for internal functions
 
@@ -41,7 +41,7 @@ Description: Clears all displays.
 -----------------------------------------------*/
 void clearDisp(void) {
     PORTB = 0x00;       // Set PORTB pins to 0 (LOW)
-    PTP = 0x0F;       // Set PORTP pins 0-3 to 1 (HIGH)
+    PTP = 0x0F;         // Set PORTP pins 0-3 to 1 (HIGH)
 
     segNumbers[0] = 0;
     segNumbers[1] = 0;
@@ -60,8 +60,8 @@ Description: Receives an ASCII character (ch)
 void setCharDisplay(char ch, byte dispNum) {
     if (dispNum <= 3) {
         if (ch >= '0' && ch <= '9') {
-            char segment = segments[ch - 48]; // Offset acsii value to 0
-            segNumbers[dispNum] = segment;  // Store segment value in memory
+            char segment = segments[ch - 48];   // Offset acsii value to 0
+            segNumbers[dispNum] = segment;      // Store segment value in memory
 
         } else if (ch == 'A' || ch == 'a') {
             segNumbers[dispNum] = 0b01110111;
