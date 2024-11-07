@@ -10,7 +10,7 @@ Description:  Segment Display Module
 
 static unsigned char segNumbers[4] = { 0x00, 0x00, 0x00, 0x00 };
 const char segments[10] = {
-    0b10011111,
+    0b00111111,
     0b00000110,
     0b01011011,
     0b01001111,
@@ -58,9 +58,16 @@ Description: Receives an ASCII character (ch)
              codes for identified display (dispNum).
 -----------------------------------------------*/
 void setCharDisplay(char ch, byte dispNum) {
-    if (dispNum <= 3 && ch >= '0' && ch <= '9') {
-        char segment = segments[ch - 48]; // Offset acsii value to 0
-        segNumbers[dispNum] = segment;  // Store segment value in memory
+    if (dispNum <= 3) {
+        if (ch >= '0' && ch <= '9') {
+            char segment = segments[ch - 48]; // Offset acsii value to 0
+            segNumbers[dispNum] = segment;  // Store segment value in memory
+
+        } else if (ch == 'A' || ch == 'a') {
+            segNumbers[dispNum] = 0b01110111;
+        } else {
+            segNumbers[dispNum] = 0;
+        }
     }
 }
 
